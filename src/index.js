@@ -188,7 +188,7 @@ class Focusable extends Component {
     return (
       <div 
         className={classNames.join(" ")} 
-        ref={e => this.el = e} 
+        ref={ (e) => { this.el = e; this.props.ref } }
         tabIndex="-1"
         onClick={ this.props.onClick }
       >
