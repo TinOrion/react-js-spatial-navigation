@@ -571,6 +571,8 @@ function getSectionDefaultElement(sectionId) {
 }
 
 function getSectionLastFocusedElement(sectionId) {
+  if (typeof _sections[sectionId] == 'undefined' || typeof _sections[sectionId].lastFocusedElement == 'undefined')
+    return null;
   var lastFocusedElement = _sections[sectionId].lastFocusedElement;
   if (!isNavigable(lastFocusedElement, sectionId, true)) {
     return null;
