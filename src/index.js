@@ -36,9 +36,7 @@ class SpatialNavigation extends Component {
     }
 
     // Set defaultElement
-    console.log(30, this.props.defaultElement)
     if (typeof this.props.defaultElement === 'string') {
-      console.log(31, this.props.defaultElement)
       propsConfig.defaultElement = this.props.defaultElement;
     }
 
@@ -53,9 +51,7 @@ class SpatialNavigation extends Component {
     }
 
     // Set leaveFor
-    console.log(20, this.props.leaveFor)
     if (typeof this.props.leaveFor === 'object') {
-      console.log(21, this.props.leaveFor)
       propsConfig.leaveFor = this.props.leaveFor;
     }
 
@@ -102,7 +98,6 @@ class SpatialNavigation extends Component {
   }
 
   componentDidMount() {
-    console.log(40, this.props)
     if (!this.props.customInit) {
       JsSpatialNavigation.init();
       JsSpatialNavigation.add(config);
@@ -258,7 +253,8 @@ class FocusableSection extends Component {
 
     let straightOnly = this.props.straightOnly,
     leaveFor = this.props.leaveFor,
-    restrict = this.props.restrict
+    restrict = this.props.restrict,
+    navigableFilter = this.props.navigableFilter
 
     JsSpatialNavigation.set(this.sectionId, {
       selector: this._getSelector(),
@@ -266,7 +262,8 @@ class FocusableSection extends Component {
       defaultElement: defaultElement,
       straightOnly: straightOnly,
       leaveFor: leaveFor,
-      restrict: restrict
+      restrict: restrict,
+      navigableFilter: navigableFilter
     });
   }
 

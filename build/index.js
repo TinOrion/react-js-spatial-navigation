@@ -1669,9 +1669,7 @@ var SpatialNavigation = function (_Component) {
       }
 
       // Set defaultElement
-      console.log(30, this.props.defaultElement);
       if (typeof this.props.defaultElement === 'string') {
-        console.log(31, this.props.defaultElement);
         propsConfig.defaultElement = this.props.defaultElement;
       }
 
@@ -1686,9 +1684,7 @@ var SpatialNavigation = function (_Component) {
       }
 
       // Set leaveFor
-      console.log(20, this.props.leaveFor);
       if (_typeof(this.props.leaveFor) === 'object') {
-        console.log(21, this.props.leaveFor);
         propsConfig.leaveFor = this.props.leaveFor;
       }
 
@@ -1737,7 +1733,6 @@ var SpatialNavigation = function (_Component) {
   }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
-      console.log(40, this.props);
       if (!this.props.customInit) {
         _spatial_navigation2.default.init();
         _spatial_navigation2.default.add(config);
@@ -1946,7 +1941,8 @@ var FocusableSection = function (_Component3) {
 
       var straightOnly = this.props.straightOnly,
           leaveFor = this.props.leaveFor,
-          restrict = this.props.restrict;
+          restrict = this.props.restrict,
+          navigableFilter = this.props.navigableFilter;
 
       _spatial_navigation2.default.set(this.sectionId, {
         selector: this._getSelector(),
@@ -1954,7 +1950,8 @@ var FocusableSection = function (_Component3) {
         defaultElement: defaultElement,
         straightOnly: straightOnly,
         leaveFor: leaveFor,
-        restrict: restrict
+        restrict: restrict,
+        navigableFilter: navigableFilter
       });
     }
   }, {
