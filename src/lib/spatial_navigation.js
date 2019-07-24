@@ -1168,6 +1168,10 @@ var JsSpatialNavigation = {
     return focusNext(direction, elem, sectionId);
   },
 
+  getSections: function() {
+    return _sections
+  },
+
   // makeFocusable()
   // makeFocusable(<sectionId>)
   makeFocusable: function(sectionId) {

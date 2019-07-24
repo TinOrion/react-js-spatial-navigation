@@ -1510,6 +1510,10 @@ var JsSpatialNavigation = {
     return focusNext(direction, elem, sectionId);
   },
 
+  getSections: function getSections() {
+    return _sections;
+  },
+
   // makeFocusable()
   // makeFocusable(<sectionId>)
   makeFocusable: function makeFocusable(sectionId) {
@@ -1741,6 +1745,9 @@ var SpatialNavigation = function (_Component) {
       } else {
         this.props.customInit.call(this, config);
       }
+      // console.log('SpatialNavigation componentDidMount')
+      // JsSpatialNavigation.getSections()
+      // this.props.onDidMount(JsSpatialNavigation);
     }
   }, {
     key: 'componentWillUnmount',
@@ -1900,10 +1907,10 @@ Focusable.contextTypes = {
 var FocusableSection = function (_Component3) {
   _inherits(FocusableSection, _Component3);
 
-  function FocusableSection() {
+  function FocusableSection(props) {
     _classCallCheck(this, FocusableSection);
 
-    return _possibleConstructorReturn(this, (FocusableSection.__proto__ || Object.getPrototypeOf(FocusableSection)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (FocusableSection.__proto__ || Object.getPrototypeOf(FocusableSection)).call(this, props));
   }
 
   _createClass(FocusableSection, [{
@@ -1914,7 +1921,14 @@ var FocusableSection = function (_Component3) {
   }, {
     key: 'componentWillMount',
     value: function componentWillMount() {
-      this.sectionId = _spatial_navigation2.default.add({});
+      var id = this.props.id;
+
+
+      var JsSConfig = '';
+
+      if (typeof id != 'undefined' && id) JsSConfig = id;
+
+      this.sectionId = _spatial_navigation2.default.add(JsSConfig, {});
     }
   }, {
     key: 'componentWillUnmount',
@@ -1960,7 +1974,7 @@ var FocusableSection = function (_Component3) {
     value: function render() {
       return _react2.default.createElement(
         'div',
-        { className: this.props.className },
+        { className: this.props.className, id: this.props.id },
         this.props.children
       );
     }

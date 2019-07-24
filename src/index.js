@@ -106,6 +106,9 @@ class SpatialNavigation extends Component {
     } else {
       this.props.customInit.call(this, config);
     }
+    // console.log('SpatialNavigation componentDidMount')
+    // JsSpatialNavigation.getSections()
+    // this.props.onDidMount(JsSpatialNavigation);
   }
 
   componentWillUnmount() {
@@ -223,12 +226,23 @@ Focusable.contextTypes = {
 *       * an empty string.
 */
 class FocusableSection extends Component {
+  constructor(props) {
+    super(props)
+  }
+
   getChildContext() {
     return {focusableSectionId: this.sectionId};
   }
 
   componentWillMount() {
-    this.sectionId = JsSpatialNavigation.add({});
+    const { id } = this.props
+
+    let JsSConfig = ''
+
+    if (typeof id != 'undefined' && id)
+      JsSConfig = id
+
+    this.sectionId = JsSpatialNavigation.add(JsSConfig, {});
   }
 
   componentWillUnmount() {
@@ -269,7 +283,7 @@ class FocusableSection extends Component {
 
   render() {
     return (
-      <div className={this.props.className}>
+      <div className={this.props.className} id={this.props.id}>
         {this.props.children}
       </div>
     );
