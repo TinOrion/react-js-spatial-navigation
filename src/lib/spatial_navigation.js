@@ -584,6 +584,7 @@ function fireEvent(elem, type, details, cancelable) {
   if (arguments.length < 4) {
     cancelable = true;
   }
+  
   var evt = document.createEvent('CustomEvent');
   evt.initCustomEvent(EVENT_PREFIX + type, true, cancelable, details);
   return elem.dispatchEvent(evt);
@@ -634,6 +635,7 @@ function focusElement(elem, sectionId, direction) {
 
   var focusProperties = {
     previousElement: currentFocusedElement,
+    currentElement: elem,
     sectionId: sectionId,
     direction: direction,
     native: false
@@ -797,6 +799,7 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
     );
   }
 
+  // next element
   if (next) {
     _sections[currentSectionId].previous = {
       target: currentFocusedElement,
@@ -806,8 +809,10 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
 
     var nextSectionId = getSectionId(next);
 
+    // Changing section
     if (currentSectionId != nextSectionId) {
       var result = gotoLeaveFor(currentSectionId, direction);
+
       if (result) {
         return true;
       } else if (result === null) {
@@ -828,6 +833,22 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
       if (enterToElement) {
         next = enterToElement;
       }
+
+      fireEvent(currentFocusedElement, 'change-current-section', {
+        currentSectionId: currentSectionId,
+        currentElement: next,
+        fromSectionId: nextSectionId,
+        fromElement: currentFocusedElement,
+        direction: direction,
+      }, false);
+
+      fireEvent(next, 'change-next-section', {
+        currentSectionId: currentSectionId,
+        currentElement: next,
+        fromSectionId: nextSectionId,
+        fromElement: currentFocusedElement,
+        direction: direction,
+      }, false);
     }
 
     return focusElement(next, nextSectionId, direction);
@@ -1170,6 +1191,21 @@ var JsSpatialNavigation = {
 
   getSections: function() {
     return _sections
+  },
+
+  scrollToSection: function(elem, offset) {
+    if (typeof (window) == 'undefined' || typeof (document) == 'undefined')
+      return
+
+    if (!elem)
+      return
+
+    var offsetTop = elem.getBoundingClientRect().top
+
+    console.log(44, offsetTop)
+    window.scrollTo({
+      top: parseFloat(offsetTop) + parseFloat(offset)
+    })
   },
 
   // makeFocusable()

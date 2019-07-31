@@ -958,6 +958,7 @@ function fireEvent(elem, type, details, cancelable) {
   if (arguments.length < 4) {
     cancelable = true;
   }
+
   var evt = document.createEvent('CustomEvent');
   evt.initCustomEvent(EVENT_PREFIX + type, true, cancelable, details);
   return elem.dispatchEvent(evt);
@@ -1008,6 +1009,7 @@ function focusElement(elem, sectionId, direction) {
 
   var focusProperties = {
     previousElement: currentFocusedElement,
+    currentElement: elem,
     sectionId: sectionId,
     direction: direction,
     native: false
@@ -1146,6 +1148,7 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
     next = navigate(currentFocusedElement, direction, exclude(allNavigableElements, currentFocusedElement), config);
   }
 
+  // next element
   if (next) {
     _sections[currentSectionId].previous = {
       target: currentFocusedElement,
@@ -1155,8 +1158,10 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
 
     var nextSectionId = getSectionId(next);
 
+    // Changing section
     if (currentSectionId != nextSectionId) {
       var result = gotoLeaveFor(currentSectionId, direction);
+
       if (result) {
         return true;
       } else if (result === null) {
@@ -1176,6 +1181,22 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
       if (enterToElement) {
         next = enterToElement;
       }
+
+      fireEvent(currentFocusedElement, 'change-current-section', {
+        currentSectionId: currentSectionId,
+        currentElement: next,
+        fromSectionId: nextSectionId,
+        fromElement: currentFocusedElement,
+        direction: direction
+      }, false);
+
+      fireEvent(next, 'change-next-section', {
+        currentSectionId: currentSectionId,
+        currentElement: next,
+        fromSectionId: nextSectionId,
+        fromElement: currentFocusedElement,
+        direction: direction
+      }, false);
     }
 
     return focusElement(next, nextSectionId, direction);
@@ -1514,6 +1535,19 @@ var JsSpatialNavigation = {
     return _sections;
   },
 
+  scrollToSection: function scrollToSection(elem, offset) {
+    if (typeof window == 'undefined' || typeof document == 'undefined') return;
+
+    if (!elem) return;
+
+    var offsetTop = elem.getBoundingClientRect().top;
+
+    console.log(44, offsetTop);
+    window.scrollTo({
+      top: parseFloat(offsetTop) + parseFloat(offset)
+    });
+  },
+
   // makeFocusable()
   // makeFocusable(<sectionId>)
   makeFocusable: function makeFocusable(sectionId) {
@@ -1813,6 +1847,12 @@ var Focusable = function (_Component2) {
     key: 'componentFocused',
     value: function componentFocused(e) {
       if (this.props.onFocus) {
+        if (this.props.scrollToSection) {
+          if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
+            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
+          }
+        }
+
         this.props.onFocus(e);
       }
     }
@@ -1829,6 +1869,11 @@ var Focusable = function (_Component2) {
       if (this.props.onClickEnter) {
         this.props.onClickEnter(e);
       }
+    }
+  }, {
+    key: '_scrollToSection',
+    value: function _scrollToSection(elem, offset) {
+      _spatial_navigation2.default.scrollToSection(elem, offset);
     }
   }, {
     key: 'componentDidMount',
@@ -1910,7 +1955,17 @@ var FocusableSection = function (_Component3) {
   function FocusableSection(props) {
     _classCallCheck(this, FocusableSection);
 
-    return _possibleConstructorReturn(this, (FocusableSection.__proto__ || Object.getPrototypeOf(FocusableSection)).call(this, props));
+    var _this4 = _possibleConstructorReturn(this, (FocusableSection.__proto__ || Object.getPrototypeOf(FocusableSection)).call(this, props));
+
+    _this4._componentChangeCurrentSection = function (event) {
+      return _this4.componentChangeCurrentSection(event);
+    };
+
+    _this4._componentChangeNextSection = function (event) {
+      return _this4.componentChangeNextSection(event);
+    };
+
+    return _this4;
   }
 
   _createClass(FocusableSection, [{
@@ -1933,7 +1988,38 @@ var FocusableSection = function (_Component3) {
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
+      if (this.el) {
+        this.el.removeEventListener("sn:change-current-section", this._componentChangeCurrentSection);
+        this.el.removeEventListener("sn:change-next-section", this._componentChangeNextSection);
+      }
+
       _spatial_navigation2.default.remove(this.sectionId);
+    }
+  }, {
+    key: 'componentChangeCurrentSection',
+    value: function componentChangeCurrentSection(e) {
+      if (this.props.onChangeCurrentSection) {
+        if (this.props.scrollToSection) {
+          if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
+            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
+          }
+        }
+
+        this.props.onChangeCurrentSection(e);
+      }
+    }
+  }, {
+    key: 'componentChangeNextSection',
+    value: function componentChangeNextSection(e) {
+      if (this.props.onChangeNextSection) {
+        if (this.props.scrollToSection) {
+          if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
+            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
+          }
+        }
+
+        this.props.onChangeNextSection(e);
+      }
     }
   }, {
     key: '_getSelector',
@@ -1941,8 +2027,43 @@ var FocusableSection = function (_Component3) {
       return getSelector(this.sectionId);
     }
   }, {
+    key: '_getAllSections',
+    value: function _getAllSections() {
+      return _spatial_navigation2.default.getSections();
+    }
+  }, {
+    key: '_disableSection',
+    value: function _disableSection() {
+      _spatial_navigation2.default.disable(this.sectionId);
+    }
+  }, {
+    key: '_activeSection',
+    value: function _activeSection() {
+      _spatial_navigation2.default.enable(this.sectionId);
+    }
+  }, {
+    key: '_makeFocus',
+    value: function _makeFocus() {
+      _spatial_navigation2.default.focus(this.sectionId);
+    }
+  }, {
+    key: '_setDefaultSection',
+    value: function _setDefaultSection() {
+      _spatial_navigation2.default.setDefaultSection(this.sectionId);
+    }
+  }, {
+    key: '_scrollToSection',
+    value: function _scrollToSection(elem, offset) {
+      _spatial_navigation2.default.scrollToSection(elem, offset);
+    }
+  }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
+      if (this.el) {
+        this.el.addEventListener("sn:change-current-section", this._componentChangeCurrentSection);
+        this.el.addEventListener("sn:change-next-section", this._componentChangeNextSection);
+      }
+
       var defaultElement = this.props.defaultElement;
       var enterTo = this.props.enterTo === undefined ? 'default-element' : this.props.enterTo;
 
@@ -1972,9 +2093,13 @@ var FocusableSection = function (_Component3) {
   }, {
     key: 'render',
     value: function render() {
+      var _this5 = this;
+
       return _react2.default.createElement(
         'div',
-        { className: this.props.className, id: this.props.id },
+        { className: this.props.className, id: this.props.id, ref: function ref(e) {
+            _this5.el = e;
+          } },
         this.props.children
       );
     }
