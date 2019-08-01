@@ -357,9 +357,8 @@ class FocusableSection extends Component {
   
   _makeFocus(selector) {
     if (typeof selector == 'undefined' || !selector)
-      JsSpatialNavigation.focus(this.sectionId)
+      JsSpatialNavigation.focus(`@${this.sectionId}`)
 
-    // console.log(222, selector)
     JsSpatialNavigation.focus(selector)
   }
 
