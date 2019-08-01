@@ -1019,6 +1019,7 @@ function focusElement(elem, sectionId, direction) {
     return false;
   }
   elem.focus();
+  console.log(43, elem, sectionId);
   fireEvent(elem, 'focused', focusProperties, false);
   fireEvent(elem, 'focused-section', focusProperties, false);
 
@@ -1050,7 +1051,9 @@ function focusExtendedSelector(selector, direction) {
     var next = parseSelector(selector)[0];
     if (next) {
       var nextSectionId = getSectionId(next);
+      console.log(41, next, nextSectionId);
       if (isNavigable(next, nextSectionId)) {
+        console.log(42, next, nextSectionId);
         return focusElement(next, nextSectionId, direction);
       }
     }
@@ -1481,30 +1484,25 @@ var JsSpatialNavigation = {
     if (!elem) {
       result = focusSection();
     } else {
-      console.log(31, elem);
       if (typeof elem === 'string') {
         if (_sections[elem]) {
-          console.log(33);
           result = focusSection(elem);
         } else {
-          console.log(34);
           result = focusExtendedSelector(elem);
+          console.log(32, result);
         }
       } else {
         var nextSectionId = getSectionId(elem);
         if (isNavigable(elem, nextSectionId)) {
-          console.log(35);
           result = focusElement(elem, nextSectionId);
         }
       }
     }
 
-    console.log(32, result);
-
     if (autoPause) {
       this.resume();
     }
-
+    console.log(34, result);
     return result;
   },
 
@@ -2123,7 +2121,7 @@ var FocusableSection = function (_Component3) {
     value: function _makeFocus(selector) {
       if (typeof selector == 'undefined' || !selector) _spatial_navigation2.default.focus(this.sectionId);
 
-      console.log(222, selector);
+      // console.log(222, selector)
       _spatial_navigation2.default.focus(selector);
     }
   }, {

@@ -1155,7 +1155,7 @@ var JsSpatialNavigation = {
     if (autoPause) {
       this.resume();
     }
-
+    
     return result;
   },
 
