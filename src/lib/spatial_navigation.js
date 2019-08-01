@@ -646,6 +646,7 @@ function focusElement(elem, sectionId, direction) {
   }
   elem.focus();
   fireEvent(elem, 'focused', focusProperties, false);
+  fireEvent(elem, 'focused-section', focusProperties, false);
 
   _duringFocusChange = false;
 
@@ -835,17 +836,17 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
       }
 
       fireEvent(currentFocusedElement, 'change-current-section', {
-        currentSectionId: currentSectionId,
+        currentSectionId: nextSectionId,
         currentElement: next,
-        fromSectionId: nextSectionId,
+        fromSectionId: currentSectionId,
         fromElement: currentFocusedElement,
         direction: direction,
       }, false);
 
       fireEvent(next, 'change-next-section', {
-        currentSectionId: currentSectionId,
+        currentSectionId: nextSectionId,
         currentElement: next,
-        fromSectionId: nextSectionId,
+        fromSectionId: currentSectionId,
         fromElement: currentFocusedElement,
         direction: direction,
       }, false);
@@ -953,6 +954,7 @@ function onFocus(evt) {
         _duringFocusChange = false;
       } else {
         fireEvent(target, 'focused', focusProperties, false);
+        fireEvent(target, 'focused-section', focusProperties, false);
         focusChanged(target, sectionId);
       }
     }
@@ -1193,18 +1195,29 @@ var JsSpatialNavigation = {
     return _sections
   },
 
-  scrollToSection: function(elem, offset) {
-    if (typeof (window) == 'undefined' || typeof (document) == 'undefined')
+  getCurrentFocusSection() {
+    var currentFocusedElement = getCurrentFocusedElement();
+
+    if (!currentFocusedElement)
+      return null
+
+    var currentSectionId = getSectionId(currentFocusedElement);
+    if (!currentSectionId)
+      return null;
+
+    return currentSectionId
+  },
+
+  scrollToSection: function(top, offset) {
+    if (typeof (window) == 'undefined')
       return
 
-    if (!elem)
+    if (!top || parseFloat(top) < 0)
       return
 
-    var offsetTop = elem.getBoundingClientRect().top
-
-    console.log(44, offsetTop)
     window.scrollTo({
-      top: parseFloat(offsetTop) + parseFloat(offset)
+      top: parseFloat(top) + parseFloat(offset),
+      behavior: 'smooth'
     })
   },
 

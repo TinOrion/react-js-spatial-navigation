@@ -1020,6 +1020,7 @@ function focusElement(elem, sectionId, direction) {
   }
   elem.focus();
   fireEvent(elem, 'focused', focusProperties, false);
+  fireEvent(elem, 'focused-section', focusProperties, false);
 
   _duringFocusChange = false;
 
@@ -1183,17 +1184,17 @@ function focusNext(direction, currentFocusedElement, currentSectionId) {
       }
 
       fireEvent(currentFocusedElement, 'change-current-section', {
-        currentSectionId: currentSectionId,
+        currentSectionId: nextSectionId,
         currentElement: next,
-        fromSectionId: nextSectionId,
+        fromSectionId: currentSectionId,
         fromElement: currentFocusedElement,
         direction: direction
       }, false);
 
       fireEvent(next, 'change-next-section', {
-        currentSectionId: currentSectionId,
+        currentSectionId: nextSectionId,
         currentElement: next,
-        fromSectionId: nextSectionId,
+        fromSectionId: currentSectionId,
         fromElement: currentFocusedElement,
         direction: direction
       }, false);
@@ -1299,6 +1300,7 @@ function onFocus(evt) {
         _duringFocusChange = false;
       } else {
         fireEvent(target, 'focused', focusProperties, false);
+        fireEvent(target, 'focused-section', focusProperties, false);
         focusChanged(target, sectionId);
       }
     }
@@ -1479,19 +1481,25 @@ var JsSpatialNavigation = {
     if (!elem) {
       result = focusSection();
     } else {
+      console.log(31, elem);
       if (typeof elem === 'string') {
         if (_sections[elem]) {
+          console.log(33);
           result = focusSection(elem);
         } else {
+          console.log(34);
           result = focusExtendedSelector(elem);
         }
       } else {
         var nextSectionId = getSectionId(elem);
         if (isNavigable(elem, nextSectionId)) {
+          console.log(35);
           result = focusElement(elem, nextSectionId);
         }
       }
     }
+
+    console.log(32, result);
 
     if (autoPause) {
       this.resume();
@@ -1535,16 +1543,26 @@ var JsSpatialNavigation = {
     return _sections;
   },
 
-  scrollToSection: function scrollToSection(elem, offset) {
-    if (typeof window == 'undefined' || typeof document == 'undefined') return;
+  getCurrentFocusSection: function getCurrentFocusSection() {
+    var currentFocusedElement = getCurrentFocusedElement();
 
-    if (!elem) return;
+    if (!currentFocusedElement) return null;
 
-    var offsetTop = elem.getBoundingClientRect().top;
+    var currentSectionId = getSectionId(currentFocusedElement);
+    if (!currentSectionId) return null;
 
-    console.log(44, offsetTop);
+    return currentSectionId;
+  },
+
+
+  scrollToSection: function scrollToSection(top, offset) {
+    if (typeof window == 'undefined') return;
+
+    if (!top || parseFloat(top) < 0) return;
+
     window.scrollTo({
-      top: parseFloat(offsetTop) + parseFloat(offset)
+      top: parseFloat(top) + parseFloat(offset),
+      behavior: 'smooth'
     });
   },
 
@@ -1965,6 +1983,10 @@ var FocusableSection = function (_Component3) {
       return _this4.componentChangeNextSection(event);
     };
 
+    _this4._componentFocusedSection = function (event) {
+      return _this4.componentFocusedSection(event);
+    };
+
     return _this4;
   }
 
@@ -1991,6 +2013,7 @@ var FocusableSection = function (_Component3) {
       if (this.el) {
         this.el.removeEventListener("sn:change-current-section", this._componentChangeCurrentSection);
         this.el.removeEventListener("sn:change-next-section", this._componentChangeNextSection);
+        this.el.removeEventListener("sn:focused-section", this._componentFocusedSection);
       }
 
       _spatial_navigation2.default.remove(this.sectionId);
@@ -2000,9 +2023,11 @@ var FocusableSection = function (_Component3) {
     value: function componentChangeCurrentSection(e) {
       if (this.props.onChangeCurrentSection) {
         if (this.props.scrollToSection) {
-          if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
-          }
+          if (!this._getSectionElem()) return;
+
+          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+
+          this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
         }
 
         this.props.onChangeCurrentSection(e);
@@ -2013,13 +2038,31 @@ var FocusableSection = function (_Component3) {
     value: function componentChangeNextSection(e) {
       if (this.props.onChangeNextSection) {
         if (this.props.scrollToSection) {
-          if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
-          }
+          if (!this._getSectionElem()) return;
+
+          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+
+          this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
         }
 
         this.props.onChangeNextSection(e);
       }
+    }
+  }, {
+    key: 'componentFocusedSection',
+    value: function componentFocusedSection(e) {
+      if (this.props.scrollToSection) {
+        if (!this._getSectionElem()) return;
+
+        var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+
+        this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
+      }
+    }
+  }, {
+    key: '_getBodyScrollTop',
+    value: function _getBodyScrollTop() {
+      return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     }
   }, {
     key: '_getSelector',
@@ -2027,9 +2070,43 @@ var FocusableSection = function (_Component3) {
       return getSelector(this.sectionId);
     }
   }, {
+    key: '_getSectionId',
+    value: function _getSectionId() {
+      return this.sectionId;
+    }
+  }, {
+    key: '_getSectionElem',
+    value: function _getSectionElem() {
+      return this.el;
+    }
+  }, {
+    key: '_getSectionElemOffet',
+    value: function _getSectionElemOffet() {
+      return this.el.getBoundingClientRect();
+    }
+  }, {
+    key: '_getWrapperSelector',
+    value: function _getWrapperSelector() {
+      return getSelector(this.sectionId + '-wrapper');
+    }
+  }, {
     key: '_getAllSections',
     value: function _getAllSections() {
       return _spatial_navigation2.default.getSections();
+    }
+  }, {
+    key: '_getCurrentFocusSection',
+    value: function _getCurrentFocusSection() {
+      return _spatial_navigation2.default.getCurrentFocusSection();
+    }
+  }, {
+    key: '_isCurrentSection',
+    value: function _isCurrentSection() {
+      var currentFocusSection = this._getCurrentFocusSection();
+
+      if (!currentFocusSection) return false;
+
+      return currentFocusSection == this.sectionId;
     }
   }, {
     key: '_disableSection',
@@ -2043,8 +2120,11 @@ var FocusableSection = function (_Component3) {
     }
   }, {
     key: '_makeFocus',
-    value: function _makeFocus() {
-      _spatial_navigation2.default.focus(this.sectionId);
+    value: function _makeFocus(selector) {
+      if (typeof selector == 'undefined' || !selector) _spatial_navigation2.default.focus(this.sectionId);
+
+      console.log(222, selector);
+      _spatial_navigation2.default.focus(selector);
     }
   }, {
     key: '_setDefaultSection',
@@ -2053,8 +2133,8 @@ var FocusableSection = function (_Component3) {
     }
   }, {
     key: '_scrollToSection',
-    value: function _scrollToSection(elem, offset) {
-      _spatial_navigation2.default.scrollToSection(elem, offset);
+    value: function _scrollToSection(top, offset) {
+      _spatial_navigation2.default.scrollToSection(top, offset);
     }
   }, {
     key: 'componentDidMount',
@@ -2062,6 +2142,7 @@ var FocusableSection = function (_Component3) {
       if (this.el) {
         this.el.addEventListener("sn:change-current-section", this._componentChangeCurrentSection);
         this.el.addEventListener("sn:change-next-section", this._componentChangeNextSection);
+        this.el.addEventListener("sn:focused-section", this._componentFocusedSection);
       }
 
       var defaultElement = this.props.defaultElement;
@@ -2097,7 +2178,7 @@ var FocusableSection = function (_Component3) {
 
       return _react2.default.createElement(
         'div',
-        { className: this.props.className, id: this.props.id, ref: function ref(e) {
+        { className: this.sectionId + '-wrapper' + ' ' + this.props.className, id: this.props.id, ref: function ref(e) {
             _this5.el = e;
           } },
         this.props.children

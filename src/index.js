@@ -147,7 +147,7 @@ class Focusable extends Component {
           this._scrollToSection(e.detail.currentElement, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
         }
       }
-      
+
       this.props.onFocus(e);
     }
   }
@@ -259,6 +259,7 @@ class FocusableSection extends Component {
     if (this.el) {
       this.el.removeEventListener("sn:change-current-section", this._componentChangeCurrentSection);
       this.el.removeEventListener("sn:change-next-section", this._componentChangeNextSection);
+      this.el.removeEventListener("sn:focused-section", this._componentFocusedSection);
     }
 
     JsSpatialNavigation.remove(this.sectionId);
@@ -267,9 +268,12 @@ class FocusableSection extends Component {
   componentChangeCurrentSection(e) {
     if (this.props.onChangeCurrentSection) {
       if (this.props.scrollToSection) {
-        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-          this._scrollToSection(e.detail.currentElement, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
-        }
+        if (!this._getSectionElem())
+          return
+
+        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+
+        this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
       }
 
       this.props.onChangeCurrentSection(e);
@@ -279,21 +283,68 @@ class FocusableSection extends Component {
   componentChangeNextSection(e) {
     if (this.props.onChangeNextSection) {
       if (this.props.scrollToSection) {
-        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-          this._scrollToSection(e.detail.currentElement, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
-        }
+        if (!this._getSectionElem())
+          return
+
+        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+
+        this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
       }
 
       this.props.onChangeNextSection(e);
     }
   }
 
+  componentFocusedSection(e) {
+    if (this.props.scrollToSection) {
+      if (!this._getSectionElem())
+          return
+
+      let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+
+      this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+    }
+  }
+
+  _getBodyScrollTop() {
+    return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+  }
+
   _getSelector() {
     return getSelector(this.sectionId);
   }
 
+  _getSectionId() {
+    return this.sectionId
+  }
+
+  _getSectionElem() {
+    return this.el
+  }
+
+  _getSectionElemOffet() {
+    return this.el.getBoundingClientRect()
+  }
+
+  _getWrapperSelector() {
+    return getSelector(this.sectionId + '-wrapper')
+  }
+
   _getAllSections() {
     return JsSpatialNavigation.getSections()
+  }
+
+  _getCurrentFocusSection() {
+    return JsSpatialNavigation.getCurrentFocusSection()
+  }
+
+  _isCurrentSection() {
+    let currentFocusSection = this._getCurrentFocusSection()
+
+    if (!currentFocusSection)
+      return false
+
+    return currentFocusSection == this.sectionId
   }
 
   _disableSection() {
@@ -304,25 +355,31 @@ class FocusableSection extends Component {
     JsSpatialNavigation.enable(this.sectionId)
   }
   
-  _makeFocus() {
-    JsSpatialNavigation.focus(this.sectionId)
+  _makeFocus(selector) {
+    if (typeof selector == 'undefined' || !selector)
+      JsSpatialNavigation.focus(this.sectionId)
+
+    // console.log(222, selector)
+    JsSpatialNavigation.focus(selector)
   }
 
   _setDefaultSection() {
     JsSpatialNavigation.setDefaultSection(this.sectionId)
   }
 
-  _scrollToSection(elem, offset) {
-    JsSpatialNavigation.scrollToSection(elem, offset)
+  _scrollToSection(top, offset) {
+    JsSpatialNavigation.scrollToSection(top, offset)
   }
 
   _componentChangeCurrentSection = (event) => this.componentChangeCurrentSection(event);
   _componentChangeNextSection = (event) => this.componentChangeNextSection(event);
+  _componentFocusedSection = (event) => this.componentFocusedSection(event);
 
   componentDidMount() {
     if (this.el) {
       this.el.addEventListener("sn:change-current-section", this._componentChangeCurrentSection);
       this.el.addEventListener("sn:change-next-section", this._componentChangeNextSection);
+      this.el.addEventListener("sn:focused-section", this._componentFocusedSection);
     }
 
     let defaultElement = this.props.defaultElement;
@@ -354,7 +411,7 @@ class FocusableSection extends Component {
 
   render() {
     return (
-      <div className={this.props.className} id={this.props.id} ref={ (e) => { this.el = e; } }>
+      <div className={`${this.sectionId + '-wrapper'} ${this.props.className}`} id={this.props.id} ref={ (e) => { this.el = e; } }>
         {this.props.children}
       </div>
     );
