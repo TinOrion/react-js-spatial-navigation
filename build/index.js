@@ -1864,9 +1864,11 @@ var Focusable = function (_Component2) {
     key: 'componentFocused',
     value: function componentFocused(e) {
       if (this.props.onFocus) {
-        if (this.props.scrollToSection) {
+        if (this.props.scrollToItem) {
           if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-            this._scrollToSection(e.detail.currentElement, this.props.scrollOffset ? this.props.scrollOffset : 0);
+            var offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop();
+
+            this._scrollToItem(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
           }
         }
 
@@ -1888,9 +1890,14 @@ var Focusable = function (_Component2) {
       }
     }
   }, {
-    key: '_scrollToSection',
-    value: function _scrollToSection(elem, offset) {
-      _spatial_navigation2.default.scrollToSection(elem, offset);
+    key: '_getBodyScrollTop',
+    value: function _getBodyScrollTop() {
+      return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    }
+  }, {
+    key: '_scrollToItem',
+    value: function _scrollToItem(top, offset) {
+      _spatial_navigation2.default.scrollToItem(top, offset);
     }
   }, {
     key: '_pause',
@@ -2178,7 +2185,8 @@ var FocusableSection = function (_Component3) {
       var straightOnly = this.props.straightOnly,
           leaveFor = this.props.leaveFor,
           restrict = this.props.restrict,
-          navigableFilter = this.props.navigableFilter;
+          navigableFilter = this.props.navigableFilter,
+          straightOverlapThreshold = this.straightOverlapThreshold;
 
       _spatial_navigation2.default.set(this.sectionId, {
         selector: this._getSelector(),

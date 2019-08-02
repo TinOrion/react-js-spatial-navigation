@@ -142,9 +142,11 @@ function getSelector(id) {
 class Focusable extends Component {
   componentFocused(e) {
     if (this.props.onFocus) {
-      if (this.props.scrollToSection) {
-        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-          this._scrollToSection(e.detail.currentElement, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+      if (this.props.scrollToItem) {
+        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {          
+          let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop()
+
+          this._scrollToItem(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
         }
       }
 
@@ -168,8 +170,12 @@ class Focusable extends Component {
   _componentUnfocused = (event) => this.componentUnfocused(event);
   _componentClickEnter = (event) => this.componentClickEnter(event);
 
-  _scrollToSection(elem, offset) {
-    JsSpatialNavigation.scrollToSection(elem, offset)
+  _getBodyScrollTop() {
+    return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+  }
+
+  _scrollToItem(top, offset) {
+    JsSpatialNavigation.scrollToItem(top, offset)
   }
 
   _pause() {
