@@ -1208,18 +1208,25 @@ var JsSpatialNavigation = {
     return currentSectionId
   },
 
-  scrollToSection: function(top, offset) {
-    if (typeof (window) == 'undefined')
+  scrollToSection: function(top, offset, scrollElem) {
+    var scrollElemDom
+
+    if (typeof scrollElem == 'undefined' || !scrollElem)
+      scrollElemDom = window
+    else
+      scrollElemDom = document.querySelector(scrollElem)
+
+    if (typeof (scrollElemDom) == 'undefined' || !scrollElemDom)
       return
 
-    if (!top || parseFloat(top) < 0)
-      return
+    // if (!top || parseFloat(top) < 0)
+    //   return
 
     if (isNaN(parseFloat(top)))
       return
-
+// console.log(21,  parseFloat(top), parseFloat(offset))
     this.pause()
-    window.scrollTo({
+    scrollElemDom.scrollTo({
       top: parseFloat(top) + parseFloat(offset),
       behavior: 'smooth'
     })

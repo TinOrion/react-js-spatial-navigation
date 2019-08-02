@@ -1549,15 +1549,20 @@ var JsSpatialNavigation = {
   },
 
 
-  scrollToSection: function scrollToSection(top, offset) {
-    if (typeof window == 'undefined') return;
+  scrollToSection: function scrollToSection(top, offset, scrollElem) {
+    var scrollElemDom;
 
-    if (!top || parseFloat(top) < 0) return;
+    if (typeof scrollElem == 'undefined' || !scrollElem) scrollElemDom = window;else scrollElemDom = document.querySelector(scrollElem);
+
+    if (typeof scrollElemDom == 'undefined' || !scrollElemDom) return;
+
+    // if (!top || parseFloat(top) < 0)
+    //   return
 
     if (isNaN(parseFloat(top))) return;
-
+    // console.log(21,  parseFloat(top), parseFloat(offset))
     this.pause();
-    window.scrollTo({
+    scrollElemDom.scrollTo({
       top: parseFloat(top) + parseFloat(offset),
       behavior: 'smooth'
     });
@@ -1866,9 +1871,12 @@ var Focusable = function (_Component2) {
       if (this.props.onFocus) {
         if (this.props.scrollToItem) {
           if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-            var offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop();
+            var offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
+                scrollElem = typeof this.props.scrollElem != 'undefined' && this.props.scrollElem ? this.props.scrollElem : null;
 
-            this._scrollToItem(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
+            if (scrollElem && document.querySelector(scrollElem)) offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top;
+
+            this._scrollToItem(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
           }
         }
 
@@ -1896,8 +1904,8 @@ var Focusable = function (_Component2) {
     }
   }, {
     key: '_scrollToItem',
-    value: function _scrollToItem(top, offset) {
-      _spatial_navigation2.default.scrollToItem(top, offset);
+    value: function _scrollToItem(top, offset, scrollElem) {
+      _spatial_navigation2.default.scrollToItem(top, offset, scrollElem);
     }
   }, {
     key: '_pause',
@@ -2041,9 +2049,12 @@ var FocusableSection = function (_Component3) {
         if (this.props.scrollToSection) {
           if (!this._getSectionElem()) return;
 
-          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+              scrollElem = typeof this.props.scrollElem != 'undefined' && this.props.scrollElem ? this.props.scrollElem : null;
 
-          this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
+          if (scrollElem && document.querySelector(scrollElem)) offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top;
+
+          this._scrollToSection(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
         }
 
         this.props.onChangeCurrentSection(e);
@@ -2056,9 +2067,12 @@ var FocusableSection = function (_Component3) {
         if (this.props.scrollToSection) {
           if (!this._getSectionElem()) return;
 
-          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+          var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+              scrollElem = typeof this.props.scrollElem != 'undefined' && this.props.scrollElem ? this.props.scrollElem : null;
 
-          this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
+          if (scrollElem && document.querySelector(scrollElem)) offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top;
+
+          this._scrollToSection(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
         }
 
         this.props.onChangeNextSection(e);
@@ -2070,9 +2084,15 @@ var FocusableSection = function (_Component3) {
       if (this.props.scrollToSection) {
         if (!this._getSectionElem()) return;
 
-        var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop();
+        var offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+            scrollElem = typeof this.props.scrollElem != 'undefined' && this.props.scrollElem ? this.props.scrollElem : null;
 
-        this._scrollToSection(offsetTop, this.props.scrollOffset ? this.props.scrollOffset : 0);
+        if (scrollElem && document.querySelector(scrollElem)) {
+          // console.log(22, this._getSectionElemOffet(), document.querySelector(scrollElem).getBoundingClientRect())
+          offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top;
+        }
+        // console.log(23, offsetTop)
+        this._scrollToSection(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
       }
     }
   }, {
@@ -2137,20 +2157,23 @@ var FocusableSection = function (_Component3) {
   }, {
     key: '_makeFocus',
     value: function _makeFocus(selector) {
-      if (typeof selector == 'undefined' || !selector) _spatial_navigation2.default.focus('@' + this.sectionId);
-
+      if (typeof selector == 'undefined' || !selector) {
+        // console.log(26, `@${this.sectionId}`)
+        _spatial_navigation2.default.focus('@' + this.sectionId);
+      }
       _spatial_navigation2.default.focus(selector);
     }
   }, {
     key: '_setDefaultSection',
     value: function _setDefaultSection() {
+      // console.log(25, this.sectionId)
       _spatial_navigation2.default.setDefaultSection(this.sectionId);
       this._makeFocus();
     }
   }, {
     key: '_scrollToSection',
-    value: function _scrollToSection(top, offset) {
-      _spatial_navigation2.default.scrollToSection(top, offset);
+    value: function _scrollToSection(top, offset, scrollElem) {
+      _spatial_navigation2.default.scrollToSection(top, offset, scrollElem);
     }
   }, {
     key: '_pause',
@@ -2186,7 +2209,7 @@ var FocusableSection = function (_Component3) {
           leaveFor = this.props.leaveFor,
           restrict = this.props.restrict,
           navigableFilter = this.props.navigableFilter,
-          straightOverlapThreshold = this.straightOverlapThreshold;
+          straightOverlapThreshold = this.props.straightOverlapThreshold;
 
       _spatial_navigation2.default.set(this.sectionId, {
         selector: this._getSelector(),
@@ -2209,7 +2232,7 @@ var FocusableSection = function (_Component3) {
 
       return _react2.default.createElement(
         'div',
-        { className: this.sectionId + '-wrapper' + ' ' + this.props.className, id: this.props.id, ref: function ref(e) {
+        { className: this.sectionId + '-wrapper' + ' ' + (this.props.className ? this.props.className : ''), id: this.props.id, ref: function ref(e) {
             _this5.el = e;
           } },
         this.props.children

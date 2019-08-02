@@ -144,9 +144,13 @@ class Focusable extends Component {
     if (this.props.onFocus) {
       if (this.props.scrollToItem) {
         if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {          
-          let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop()
+          let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
+            scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
-          this._scrollToItem(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+          if (scrollElem && document.querySelector(scrollElem))
+            offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+
+          this._scrollToItem((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
         }
       }
 
@@ -174,8 +178,8 @@ class Focusable extends Component {
     return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
   }
 
-  _scrollToItem(top, offset) {
-    JsSpatialNavigation.scrollToItem(top, offset)
+  _scrollToItem(top, offset, scrollElem) {
+    JsSpatialNavigation.scrollToItem(top, offset, scrollElem)
   }
 
   _pause() {
@@ -285,9 +289,13 @@ class FocusableSection extends Component {
         if (!this._getSectionElem())
           return
 
-        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+          scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
-        this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+        if (scrollElem && document.querySelector(scrollElem))
+          offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+
+        this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
       }
 
       this.props.onChangeCurrentSection(e);
@@ -300,9 +308,13 @@ class FocusableSection extends Component {
         if (!this._getSectionElem())
           return
 
-        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+        let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+          scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
-        this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+        if (scrollElem && document.querySelector(scrollElem))
+          offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+
+        this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
       }
 
       this.props.onChangeNextSection(e);
@@ -314,9 +326,15 @@ class FocusableSection extends Component {
       if (!this._getSectionElem())
           return
 
-      let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop()
+      let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
+        scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
-      this._scrollToSection(offsetTop, (this.props.scrollOffset) ? this.props.scrollOffset : 0)
+      if (scrollElem && document.querySelector(scrollElem)) {
+        // console.log(22, this._getSectionElemOffet(), document.querySelector(scrollElem).getBoundingClientRect())
+        offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+      }
+      // console.log(23, offsetTop)
+      this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
     }
   }
 
@@ -370,19 +388,21 @@ class FocusableSection extends Component {
   }
   
   _makeFocus(selector) {
-    if (typeof selector == 'undefined' || !selector)
+    if (typeof selector == 'undefined' || !selector) {
+      // console.log(26, `@${this.sectionId}`)
       JsSpatialNavigation.focus(`@${this.sectionId}`)
-
+    }
     JsSpatialNavigation.focus(selector)
   }
 
   _setDefaultSection() {
+    // console.log(25, this.sectionId)
     JsSpatialNavigation.setDefaultSection(this.sectionId)
     this._makeFocus()
   }
 
-  _scrollToSection(top, offset) {
-    JsSpatialNavigation.scrollToSection(top, offset)
+  _scrollToSection(top, offset, scrollElem) {
+    JsSpatialNavigation.scrollToSection(top, offset, scrollElem)
   }
 
   _pause() {
@@ -419,7 +439,7 @@ class FocusableSection extends Component {
         leaveFor = this.props.leaveFor,
         restrict = this.props.restrict,
         navigableFilter = this.props.navigableFilter,
-        straightOverlapThreshold = this.straightOverlapThreshold
+        straightOverlapThreshold = this.props.straightOverlapThreshold
 
     JsSpatialNavigation.set(this.sectionId, {
       selector: this._getSelector(),
@@ -441,7 +461,7 @@ class FocusableSection extends Component {
 
   render() {
     return (
-      <div className={`${this.sectionId + '-wrapper'} ${this.props.className}`} id={this.props.id} ref={ (e) => { this.el = e; } }>
+      <div className={`${this.sectionId + '-wrapper'} ${this.props.className ? this.props.className : ''}`} id={this.props.id} ref={ (e) => { this.el = e; } }>
         {this.props.children}
       </div>
     );
