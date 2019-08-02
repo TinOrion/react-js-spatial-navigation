@@ -1215,10 +1215,16 @@ var JsSpatialNavigation = {
     if (!top || parseFloat(top) < 0)
       return
 
+    if (isNaN(parseFloat(top)))
+      return
+
+    this.pause()
     window.scrollTo({
       top: parseFloat(top) + parseFloat(offset),
       behavior: 'smooth'
     })
+
+    this.resume()
   },
 
   // makeFocusable()

@@ -1554,10 +1554,15 @@ var JsSpatialNavigation = {
 
     if (!top || parseFloat(top) < 0) return;
 
+    if (isNaN(parseFloat(top))) return;
+
+    this.pause();
     window.scrollTo({
       top: parseFloat(top) + parseFloat(offset),
       behavior: 'smooth'
     });
+
+    this.resume();
   },
 
   // makeFocusable()
@@ -1888,6 +1893,16 @@ var Focusable = function (_Component2) {
       _spatial_navigation2.default.scrollToSection(elem, offset);
     }
   }, {
+    key: '_pause',
+    value: function _pause() {
+      _spatial_navigation2.default.pause();
+    }
+  }, {
+    key: '_resume',
+    value: function _resume() {
+      _spatial_navigation2.default.resume();
+    }
+  }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
       if (!this.el) return;
@@ -2123,11 +2138,22 @@ var FocusableSection = function (_Component3) {
     key: '_setDefaultSection',
     value: function _setDefaultSection() {
       _spatial_navigation2.default.setDefaultSection(this.sectionId);
+      this._makeFocus();
     }
   }, {
     key: '_scrollToSection',
     value: function _scrollToSection(top, offset) {
       _spatial_navigation2.default.scrollToSection(top, offset);
+    }
+  }, {
+    key: '_pause',
+    value: function _pause() {
+      _spatial_navigation2.default.pause();
+    }
+  }, {
+    key: '_resume',
+    value: function _resume() {
+      _spatial_navigation2.default.resume();
     }
   }, {
     key: 'componentDidMount',
@@ -2163,6 +2189,10 @@ var FocusableSection = function (_Component3) {
         restrict: restrict,
         navigableFilter: navigableFilter
       });
+
+      if (typeof this.props.defaultSection != 'undefined' && this.props.defaultSection) this._setDefaultSection();
+
+      if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection) this._disableSection();
     }
   }, {
     key: 'render',

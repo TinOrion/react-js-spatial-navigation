@@ -172,6 +172,14 @@ class Focusable extends Component {
     JsSpatialNavigation.scrollToSection(elem, offset)
   }
 
+  _pause() {
+    JsSpatialNavigation.pause()
+  }
+
+  _resume() {
+    JsSpatialNavigation.resume()
+  }
+
   componentDidMount() {
     if (!this.el)
       return;
@@ -364,10 +372,19 @@ class FocusableSection extends Component {
 
   _setDefaultSection() {
     JsSpatialNavigation.setDefaultSection(this.sectionId)
+    this._makeFocus()
   }
 
   _scrollToSection(top, offset) {
     JsSpatialNavigation.scrollToSection(top, offset)
+  }
+
+  _pause() {
+    JsSpatialNavigation.pause()
+  }
+
+  _resume() {
+    JsSpatialNavigation.resume()
   }
 
   _componentChangeCurrentSection = (event) => this.componentChangeCurrentSection(event);
@@ -393,9 +410,10 @@ class FocusableSection extends Component {
     }
 
     let straightOnly = this.props.straightOnly,
-    leaveFor = this.props.leaveFor,
-    restrict = this.props.restrict,
-    navigableFilter = this.props.navigableFilter
+        leaveFor = this.props.leaveFor,
+        restrict = this.props.restrict,
+        navigableFilter = this.props.navigableFilter,
+        straightOverlapThreshold = this.straightOverlapThreshold
 
     JsSpatialNavigation.set(this.sectionId, {
       selector: this._getSelector(),
@@ -406,6 +424,13 @@ class FocusableSection extends Component {
       restrict: restrict,
       navigableFilter: navigableFilter
     });
+
+    if (typeof this.props.defaultSection != 'undefined' && this.props.defaultSection)
+      this._setDefaultSection()
+
+    if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection)
+      this._disableSection()
+    
   }
 
   render() {
