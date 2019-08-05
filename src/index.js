@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import JsSpatialNavigation from './lib/spatial_navigation.js';
+import { SSL_OP_COOKIE_EXCHANGE } from 'constants';
 
 const defaultConfig = {
   activeClassName: 'active',
@@ -256,6 +257,10 @@ Focusable.contextTypes = {
 class FocusableSection extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      defaultSectionLoaded: false
+    }
   }
 
   getChildContext() {
@@ -385,20 +390,24 @@ class FocusableSection extends Component {
 
   _activeSection() {
     JsSpatialNavigation.enable(this.sectionId)
-  }
+  }7
   
   _makeFocus(selector) {
     if (typeof selector == 'undefined' || !selector) {
-      // console.log(26, `@${this.sectionId}`)
       JsSpatialNavigation.focus(`@${this.sectionId}`)
     }
     JsSpatialNavigation.focus(selector)
   }
 
   _setDefaultSection() {
-    // console.log(25, this.sectionId)
     JsSpatialNavigation.setDefaultSection(this.sectionId)
-    this._makeFocus()
+
+    if (!this.state.defaultSectionLoaded) {
+      this._makeFocus()
+      this.setState({
+        defaultSectionLoaded: true
+      })
+    }
   }
 
   _scrollToSection(top, offset, scrollElem) {
@@ -411,6 +420,14 @@ class FocusableSection extends Component {
 
   _resume() {
     JsSpatialNavigation.resume()
+  }
+
+  _hasDefaultSetting() {
+    return (typeof this.props.defaultSection != 'undefined' && this.props.defaultSection)
+  }
+
+  _hasChildrenItems() {
+    return (typeof this.props.children != 'undefined' && this.props.children)
   }
 
   _componentChangeCurrentSection = (event) => this.componentChangeCurrentSection(event);
@@ -451,17 +468,29 @@ class FocusableSection extends Component {
       navigableFilter: navigableFilter
     });
 
-    if (typeof this.props.defaultSection != 'undefined' && this.props.defaultSection)
+    if (this._hasDefaultSetting() && this._hasChildrenItems() && this.props.isLoaded)
       this._setDefaultSection()
 
     if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection)
       this._disableSection()
-    
+  }
+
+  componentWillUpdate() {
+    if (this._hasDefaultSetting() && this._hasChildrenItems()
+      && !this.state.defaultSectionLoaded) {
+      this._makeFocus()
+      this.setState({
+        defaultSectionLoaded: true
+      })
+    }
   }
 
   render() {
+    if (typeof this.props.children == 'undefined' && !this.props.children)
+      return null
+
     return (
-      <div className={`${this.sectionId + '-wrapper'} ${this.props.className ? this.props.className : ''}`} id={this.props.id} ref={ (e) => { this.el = e; } }>
+      <div className={`${this.sectionId + '-wrapper'} ${(this.state.defaultSectionLoaded ? this.sectionId + '-default' : '')} ${this.props.className ? this.props.className : ''}`} id={this.props.id} ref={ (e) => { this.el = e; } }>
         {this.props.children}
       </div>
     );
