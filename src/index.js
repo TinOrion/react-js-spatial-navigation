@@ -332,14 +332,14 @@ class FocusableSection extends Component {
           return
 
       let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
-        scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
+        scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null,
+        scrollOffsetDirection = 1
 
       if (scrollElem && document.querySelector(scrollElem)) {
-        // console.log(22, this._getSectionElemOffet(), document.querySelector(scrollElem).getBoundingClientRect())
-        offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+        offsetTop = 0
       }
-      // console.log(23, offsetTop)
-      this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
+
+      this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset * scrollOffsetDirection : 0, scrollElem)
     }
   }
 

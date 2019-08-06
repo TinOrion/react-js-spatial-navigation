@@ -1224,7 +1224,7 @@ var JsSpatialNavigation = {
 
     if (isNaN(parseFloat(top)))
       return
-// console.log(21,  parseFloat(top), parseFloat(offset))
+
     this.pause()
     scrollElemDom.scrollTo({
       top: parseFloat(top) + parseFloat(offset),
