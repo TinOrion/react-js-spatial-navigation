@@ -144,7 +144,10 @@ class Focusable extends Component {
   componentFocused(e) {
     if (this.props.onFocus) {
       if (this.props.scrollToItem) {
-        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {          
+        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
+          if (e.detail.direction == 'left' || e.detail.direction == 'right')
+            return
+            
           let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
             scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
@@ -294,6 +297,12 @@ class FocusableSection extends Component {
         if (!this._getSectionElem())
           return
 
+        if (typeof e.detail.direction == 'undefined')
+          return
+
+        if (e.detail.direction == 'left' || e.detail.direction == 'right')
+          return
+
         let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
           scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
@@ -313,6 +322,12 @@ class FocusableSection extends Component {
         if (!this._getSectionElem())
           return
 
+        if (typeof e.detail.direction == 'undefined')
+          return
+
+        if (e.detail.direction == 'left' || e.detail.direction == 'right')
+          return
+
         let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
           scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
@@ -329,17 +344,22 @@ class FocusableSection extends Component {
   componentFocusedSection(e) {
     if (this.props.scrollToSection) {
       if (!this._getSectionElem())
-          return
+        return
+
+      if (typeof e.detail.direction == 'undefined')
+        return
+
+      if (e.detail.direction == 'left' || e.detail.direction == 'right')
+        return
 
       let offsetTop = this._getSectionElemOffet().top + this._getBodyScrollTop(),
-        scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null,
-        scrollOffsetDirection = 1
+        scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 
       if (scrollElem && document.querySelector(scrollElem)) {
         offsetTop = 0
       }
 
-      this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset * scrollOffsetDirection : 0, scrollElem)
+      this._scrollToSection((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
     }
   }
 
