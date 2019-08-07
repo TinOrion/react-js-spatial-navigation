@@ -147,7 +147,7 @@ class Focusable extends Component {
         if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
           if (e.detail.direction == 'left' || e.detail.direction == 'right')
             return
-            
+
           let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
             scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
 

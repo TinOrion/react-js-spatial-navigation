@@ -29,8 +29,7 @@ var GlobalConfig = {
   leaveFor: null,         // {left: <extSelector>, right: <extSelector>,
                           //  up: <extSelector>, down: <extSelector>}
   restrict: 'self-first', // 'self-first', 'self-only', 'none'
-  tabIndexIgnoreList:
-    'a, input, select, textarea, button, iframe, [contentEditable=true]',
+  tabIndexIgnoreList: 'iframe [contentEditable=true]', // 'a, input, select, textarea, button, iframe, [contentEditable=true]',
   navigableFilter: null
 };
 
