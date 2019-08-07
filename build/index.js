@@ -1550,8 +1550,6 @@ var JsSpatialNavigation = {
 
 
   scrollToSection: function scrollToSection(top, offset, scrollElem) {
-    console.log("currentFocusedElement", getCurrentFocusedElement());
-    console.log("scrollToSection", top, offset, scrollElem);
     var scrollElemDom;
 
     if (typeof scrollElem == 'undefined' || !scrollElem) scrollElemDom = window;else scrollElemDom = document.querySelector(scrollElem);
@@ -1564,9 +1562,11 @@ var JsSpatialNavigation = {
     if (isNaN(parseFloat(top))) return;
 
     this.pause();
-    scrollElemDom.scrollTo({
-      top: parseFloat(top) + parseFloat(offset)
-    });
+    // scrollElemDom.scrollTo({
+    //   top: parseFloat(top) + parseFloat(offset)
+    // })
+
+    scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset));
 
     this.resume();
   },
@@ -2116,7 +2116,7 @@ var FocusableSection = function (_Component3) {
         if (scrollElem && document.querySelector(scrollElem)) {
           offsetTop = 0;
         }
-        console.log("componentFocusedSection", this.sectionId, this.props, scrollElem);
+
         this._scrollToSection(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
       }
     }

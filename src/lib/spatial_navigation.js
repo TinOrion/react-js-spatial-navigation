@@ -1208,8 +1208,6 @@ var JsSpatialNavigation = {
   },
 
   scrollToSection: function(top, offset, scrollElem) {
-    console.log("currentFocusedElement", getCurrentFocusedElement())
-    console.log("scrollToSection", top, offset, scrollElem)
     var scrollElemDom
 
     if (typeof scrollElem == 'undefined' || !scrollElem)
@@ -1227,9 +1225,11 @@ var JsSpatialNavigation = {
       return
 
     this.pause()
-    scrollElemDom.scrollTo({
-      top: parseFloat(top) + parseFloat(offset)
-    })
+    // scrollElemDom.scrollTo({
+    //   top: parseFloat(top) + parseFloat(offset)
+    // })
+
+    scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset))
 
     this.resume()
   },
