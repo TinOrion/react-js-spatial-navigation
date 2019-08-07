@@ -2116,7 +2116,7 @@ var FocusableSection = function (_Component3) {
         if (scrollElem && document.querySelector(scrollElem)) {
           offsetTop = 0;
         }
-
+        console.log("componentFocusedSection", this.sectionId, this.props, scrollElem);
         this._scrollToSection(offsetTop > 0 ? offsetTop : 0, this.props.scrollOffset ? this.props.scrollOffset : 0, scrollElem);
       }
     }
