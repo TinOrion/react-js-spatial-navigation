@@ -143,22 +143,22 @@ function getSelector(id) {
 class Focusable extends Component {
   componentFocused(e) {
     if (this.props.onFocus) {
-      if (this.props.scrollToItem) {
-        if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
-          if (e.detail.direction == 'left' || e.detail.direction == 'right')
-            return
-
-          let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
-            scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
-
-          if (scrollElem && document.querySelector(scrollElem))
-            offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
-
-          this._scrollToItem((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
-        }
-      }
-
       this.props.onFocus(e);
+    }
+    
+    if (this.props.scrollToItem) {
+      if (typeof e.detail != 'undefined' && typeof e.detail.currentElement != 'undefined' && e.detail.currentElement) {
+        if (e.detail.direction == 'left' || e.detail.direction == 'right')
+          return
+
+        let offsetTop = e.detail.currentElement.getBoundingClientRect().top + this._getBodyScrollTop(),
+          scrollElem = (typeof this.props.scrollElem != 'undefined' && this.props.scrollElem) ? this.props.scrollElem : null
+
+        if (scrollElem && document.querySelector(scrollElem))
+          offsetTop -= document.querySelector(scrollElem).getBoundingClientRect().top
+
+        this._scrollToItem((offsetTop > 0) ? offsetTop : 0, (this.props.scrollOffset) ? this.props.scrollOffset : 0, scrollElem)
+      }
     }
   }
 
@@ -183,7 +183,7 @@ class Focusable extends Component {
   }
 
   _scrollToItem(top, offset, scrollElem) {
-    JsSpatialNavigation.scrollToItem(top, offset, scrollElem)
+    JsSpatialNavigation.scrollToSection(top, offset, scrollElem)
   }
 
   _pause() {
