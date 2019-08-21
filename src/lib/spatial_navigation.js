@@ -1229,7 +1229,11 @@ var JsSpatialNavigation = {
     //   top: parseFloat(top) + parseFloat(offset)
     // })
 
-    scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset))
+    try {
+      scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset))
+    } catch (e) {
+      console.log(11, e)
+    }
 
     this.resume()
   },
