@@ -520,6 +520,8 @@ var ID_POOL_PREFIX = 'section-';
 var _idPool = 0;
 var _ready = false;
 var _pause = false;
+var _canKeypress = true;
+var _keypressDelay = 300;
 var _sections = {};
 var _sectionCount = 0;
 var _defaultSectionId = '';
@@ -1221,6 +1223,13 @@ function onKeyDown(evt) {
     return false;
   };
 
+  if (!_canKeypress) return preventDefault();
+
+  _canKeypress = false;
+  setTimeout(function () {
+    _canKeypress = true;
+  }, _keypressDelay);
+
   var direction = KEYMAPPING[evt.keyCode];
   if (!direction) {
     if (evt.keyCode == 13) {
@@ -1568,9 +1577,7 @@ var JsSpatialNavigation = {
 
     try {
       scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset));
-    } catch (e) {
-      console.log(11, e);
-    }
+    } catch (e) {}
 
     this.resume();
   },
@@ -1971,6 +1978,7 @@ var Focusable = function (_Component2) {
             _this3.el = e;_this3.props.ref;
           },
           tabIndex: '-1',
+          style: this.props.style,
           onClick: this.props.onClick
         },
         this.props.children

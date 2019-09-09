@@ -59,6 +59,8 @@ var ID_POOL_PREFIX = 'section-';
 var _idPool = 0;
 var _ready = false;
 var _pause = false;
+var _canKeypress = true;
+var _keypressDelay = 300;
 var _sections = {};
 var _sectionCount = 0;
 var _defaultSectionId = '';
@@ -873,6 +875,12 @@ function onKeyDown(evt) {
     return false;
   };
 
+  if (!_canKeypress)
+    return preventDefault();
+
+  _canKeypress = false
+  setTimeout(() => {_canKeypress = true}, _keypressDelay)
+
   var direction = KEYMAPPING[evt.keyCode];
   if (!direction) {
     if (evt.keyCode == 13) {
@@ -1232,7 +1240,6 @@ var JsSpatialNavigation = {
     try {
       scrollElemDom.scrollTo(0, parseFloat(top) + parseFloat(offset))
     } catch (e) {
-      console.log(11, e)
     }
 
     this.resume()
