@@ -496,9 +496,8 @@ class FocusableSection extends Component {
       this._disableSection()
   }
 
-  componentWillUpdate() {
-    if (this._hasDefaultSetting() && this._hasChildrenItems()
-      && !this.state.defaultSectionLoaded) {
+  componentDidUpdate() {
+    if (this._hasDefaultSetting() && this._hasChildrenItems() && !this.state.defaultSectionLoaded) {
       this._makeFocus()
       this.setState({
         defaultSectionLoaded: true

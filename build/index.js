@@ -521,7 +521,7 @@ var _idPool = 0;
 var _ready = false;
 var _pause = false;
 var _canKeypress = true;
-var _keypressDelay = 300;
+var _keypressDelay = 200;
 var _sections = {};
 var _sectionCount = 0;
 var _defaultSectionId = '';
@@ -2277,8 +2277,8 @@ var FocusableSection = function (_Component3) {
       if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection) this._disableSection();
     }
   }, {
-    key: 'componentWillUpdate',
-    value: function componentWillUpdate() {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
       if (this._hasDefaultSetting() && this._hasChildrenItems() && !this.state.defaultSectionLoaded) {
         this._makeFocus();
         this.setState({
