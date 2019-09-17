@@ -1552,6 +1552,7 @@ var JsSpatialNavigation = {
     if (!currentFocusedElement) return null;
 
     var currentSectionId = getSectionId(currentFocusedElement);
+
     if (!currentSectionId) return null;
 
     return currentSectionId;
@@ -2194,10 +2195,17 @@ var FocusableSection = function (_Component3) {
   }, {
     key: '_makeFocus',
     value: function _makeFocus(selector) {
+      var _this5 = this;
+
       if (typeof selector == 'undefined' || !selector) {
-        _spatial_navigation2.default.focus('@' + this.sectionId);
+        window.setTimeout(function () {
+          _spatial_navigation2.default.focus('@' + _this5.sectionId);
+        }, 500);
+      } else {
+        window.setTimeout(function () {
+          _spatial_navigation2.default.focus(selector);
+        }, 500);
       }
-      _spatial_navigation2.default.focus(selector);
     }
   }, {
     key: '_setDefaultSection',
@@ -2205,10 +2213,10 @@ var FocusableSection = function (_Component3) {
       _spatial_navigation2.default.setDefaultSection(this.sectionId);
 
       if (!this.state.defaultSectionLoaded) {
-        this._makeFocus();
         this.setState({
           defaultSectionLoaded: true
         });
+        this._makeFocus();
       }
     }
   }, {
@@ -2272,7 +2280,10 @@ var FocusableSection = function (_Component3) {
         navigableFilter: navigableFilter
       });
 
-      if (this._hasDefaultSetting() && this._hasChildrenItems() && this.props.isLoaded) this._setDefaultSection();
+      // if (this._hasDefaultSetting() && this._hasChildrenItems() && this.props.isLoaded)
+      if (this._hasDefaultSetting() && this._hasChildrenItems() && !this.state.defaultSectionLoaded) {
+        this._setDefaultSection();
+      }
 
       if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection) this._disableSection();
     }
@@ -2289,14 +2300,14 @@ var FocusableSection = function (_Component3) {
   }, {
     key: 'render',
     value: function render() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (typeof this.props.children == 'undefined' && !this.props.children) return null;
 
       return _react2.default.createElement(
         'div',
         { className: this.sectionId + '-wrapper' + ' ' + (this.state.defaultSectionLoaded ? this.sectionId + '-default' : '') + ' ' + (this.props.className ? this.props.className : ''), id: this.props.id, ref: function ref(e) {
-            _this5.el = e;
+            _this6.el = e;
           } },
         this.props.children
       );

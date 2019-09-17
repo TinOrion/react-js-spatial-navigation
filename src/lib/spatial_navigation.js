@@ -1209,6 +1209,7 @@ var JsSpatialNavigation = {
       return null
 
     var currentSectionId = getSectionId(currentFocusedElement);
+
     if (!currentSectionId)
       return null;
 

@@ -227,7 +227,7 @@ class Focusable extends Component {
         tabIndex="-1"
         style={this.props.style}
         onClick={ this.props.onClick }
-      >
+        >
         {this.props.children}
       </div>
     );
@@ -415,19 +415,24 @@ class FocusableSection extends Component {
   
   _makeFocus(selector) {
     if (typeof selector == 'undefined' || !selector) {
-      JsSpatialNavigation.focus(`@${this.sectionId}`)
+      window.setTimeout(() => {
+        JsSpatialNavigation.focus(`@${this.sectionId}`)
+      }, 500)
+    } else {
+      window.setTimeout(() => {
+        JsSpatialNavigation.focus(selector)
+      }, 500)
     }
-    JsSpatialNavigation.focus(selector)
   }
 
   _setDefaultSection() {
     JsSpatialNavigation.setDefaultSection(this.sectionId)
 
     if (!this.state.defaultSectionLoaded) {
-      this._makeFocus()
       this.setState({
         defaultSectionLoaded: true
       })
+      this._makeFocus()
     }
   }
 
@@ -489,8 +494,10 @@ class FocusableSection extends Component {
       navigableFilter: navigableFilter
     });
 
-    if (this._hasDefaultSetting() && this._hasChildrenItems() && this.props.isLoaded)
+    // if (this._hasDefaultSetting() && this._hasChildrenItems() && this.props.isLoaded)
+    if (this._hasDefaultSetting() && this._hasChildrenItems() && !this.state.defaultSectionLoaded) {
       this._setDefaultSection()
+    }
 
     if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection)
       this._disableSection()
