@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import JsSpatialNavigation from './lib/spatial_navigation.js';
-import { SSL_OP_COOKIE_EXCHANGE } from 'constants';
 
 const defaultConfig = {
   activeClassName: 'active',
@@ -417,11 +416,11 @@ class FocusableSection extends Component {
     if (typeof selector == 'undefined' || !selector) {
       window.setTimeout(() => {
         JsSpatialNavigation.focus(`@${this.sectionId}`)
-      }, 500)
+      }, 10)
     } else {
       window.setTimeout(() => {
         JsSpatialNavigation.focus(selector)
-      }, 500)
+      }, 10)
     }
   }
 
