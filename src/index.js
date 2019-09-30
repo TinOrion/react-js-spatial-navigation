@@ -8,7 +8,9 @@ const defaultConfig = {
   focusableClassName: 'focusable',
   selector: '.focusable',
 };
-let config = {};
+let config = {},
+  canClickEvent = true,
+  canEnterEvent = true
 
 /**
 * This component initialize the Spatial Navigation library.
@@ -90,7 +92,22 @@ class SpatialNavigation extends Component {
       propsConfig.tabIndexIgnoreList = this.props.tabIndexIgnoreList;
     }
 
+    // Set canClickEvent
+    if (typeof this.props.canClickEvent === 'boolean') {
+      canClickEvent = this.props.canClickEvent
+    }
+
+    // Set canEnterEvent
+    if (typeof this.props.canEnterEvent === 'boolean') {
+      canEnterEvent = this.props.canEnterEvent
+    }
+
     return propsConfig;
+  }
+
+  resetEnterClickEvent = () => {
+    canClickEvent = true
+    canEnterEvent = true
   }
 
   componentWillMount() {
@@ -102,7 +119,6 @@ class SpatialNavigation extends Component {
       JsSpatialNavigation.init();
       JsSpatialNavigation.add(config);
       JsSpatialNavigation.focus();
-
     } else {
       this.props.customInit.call(this, config);
     }
@@ -112,6 +128,7 @@ class SpatialNavigation extends Component {
   }
 
   componentWillUnmount() {
+    this.resetEnterClickEvent()
     JsSpatialNavigation.uninit();
   }
 
@@ -168,8 +185,20 @@ class Focusable extends Component {
   }
 
   componentClickEnter(e) {
+    if (!canEnterEvent)
+      return
+
     if (this.props.onClickEnter) {
       this.props.onClickEnter(e);
+    }
+  }
+
+  handleOnClick = (e) => {
+    if (!canClickEvent)
+      return
+
+    if (this.props.onClick) {
+      this.props.onClick(e)
     }
   }
 
@@ -225,7 +254,7 @@ class Focusable extends Component {
         ref={ (e) => { this.el = e; this.props.ref } }
         tabIndex="-1"
         style={this.props.style}
-        onClick={ this.props.onClick }
+        onClick={ (e) => this.handleOnClick(e) }
         >
         {this.props.children}
       </div>

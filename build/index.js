@@ -490,7 +490,7 @@ var GlobalConfig = {
   leaveFor: null, // {left: <extSelector>, right: <extSelector>,
   //  up: <extSelector>, down: <extSelector>}
   restrict: 'self-first', // 'self-first', 'self-only', 'none'
-  tabIndexIgnoreList: 'iframe [contentEditable=true]', // 'a, input, select, textarea, button, iframe, [contentEditable=true]',
+  tabIndexIgnoreList: 'iframe, [contentEditable=true]', // 'a, input, select, textarea, button, iframe, [contentEditable=true]',
   navigableFilter: null
 };
 
@@ -1705,7 +1705,9 @@ var defaultConfig = {
   focusableClassName: 'focusable',
   selector: '.focusable'
 };
-var config = {};
+var config = {},
+    canClickEvent = true,
+    canEnterEvent = true;
 
 /**
 * This component initialize the Spatial Navigation library.
@@ -1717,9 +1719,20 @@ var SpatialNavigation = function (_Component) {
   _inherits(SpatialNavigation, _Component);
 
   function SpatialNavigation() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, SpatialNavigation);
 
-    return _possibleConstructorReturn(this, (SpatialNavigation.__proto__ || Object.getPrototypeOf(SpatialNavigation)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SpatialNavigation.__proto__ || Object.getPrototypeOf(SpatialNavigation)).call.apply(_ref, [this].concat(args))), _this), _this.resetEnterClickEvent = function () {
+      canClickEvent = true;
+      canEnterEvent = true;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(SpatialNavigation, [{
@@ -1797,6 +1810,16 @@ var SpatialNavigation = function (_Component) {
         propsConfig.tabIndexIgnoreList = this.props.tabIndexIgnoreList;
       }
 
+      // Set canClickEvent
+      if (typeof this.props.canClickEvent === 'boolean') {
+        canClickEvent = this.props.canClickEvent;
+      }
+
+      // Set canEnterEvent
+      if (typeof this.props.canEnterEvent === 'boolean') {
+        canEnterEvent = this.props.canEnterEvent;
+      }
+
       return propsConfig;
     }
   }, {
@@ -1821,6 +1844,7 @@ var SpatialNavigation = function (_Component) {
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
+      this.resetEnterClickEvent();
       _spatial_navigation2.default.uninit();
     }
   }, {
@@ -1859,23 +1883,29 @@ var Focusable = function (_Component2) {
   _inherits(Focusable, _Component2);
 
   function Focusable() {
-    var _ref;
+    var _ref2;
 
-    var _temp, _this2, _ret;
+    var _temp2, _this2, _ret2;
 
     _classCallCheck(this, Focusable);
 
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
     }
 
-    return _ret = (_temp = (_this2 = _possibleConstructorReturn(this, (_ref = Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call.apply(_ref, [this].concat(args))), _this2), _this2._componentFocused = function (event) {
+    return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_ref2 = Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call.apply(_ref2, [this].concat(args))), _this2), _this2.handleOnClick = function (e) {
+      if (!canClickEvent) return;
+
+      if (_this2.props.onClick) {
+        _this2.props.onClick(e);
+      }
+    }, _this2._componentFocused = function (event) {
       return _this2.componentFocused(event);
     }, _this2._componentUnfocused = function (event) {
       return _this2.componentUnfocused(event);
     }, _this2._componentClickEnter = function (event) {
       return _this2.componentClickEnter(event);
-    }, _temp), _possibleConstructorReturn(_this2, _ret);
+    }, _temp2), _possibleConstructorReturn(_this2, _ret2);
   }
 
   _createClass(Focusable, [{
@@ -1908,6 +1938,8 @@ var Focusable = function (_Component2) {
   }, {
     key: 'componentClickEnter',
     value: function componentClickEnter(e) {
+      if (!canEnterEvent) return;
+
       if (this.props.onClickEnter) {
         this.props.onClickEnter(e);
       }
@@ -1972,7 +2004,9 @@ var Focusable = function (_Component2) {
           },
           tabIndex: '-1',
           style: this.props.style,
-          onClick: this.props.onClick
+          onClick: function onClick(e) {
+            return _this3.handleOnClick(e);
+          }
         },
         this.props.children
       );
