@@ -182,6 +182,10 @@ class Focusable extends Component {
     if (this.props.onUnfocus) {
       this.props.onUnfocus(e);
     }
+
+    if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId) {
+      this._makeFocusDefaultSection()
+    }
   }
 
   componentClickEnter(e) {
@@ -220,6 +224,18 @@ class Focusable extends Component {
 
   _resume() {
     JsSpatialNavigation.resume()
+  }
+
+  _makeFocusDefaultSection() {
+    JsSpatialNavigation.focus()
+  }
+
+  _makeFocus(selector) {
+    if (typeof selector == 'undefined' || !selector) {
+        JsSpatialNavigation.focus(`@${this.sectionId}`)
+    } else {
+        JsSpatialNavigation.focus(selector)
+    }
   }
 
   componentDidMount() {
@@ -443,11 +459,11 @@ class FocusableSection extends Component {
   
   _makeFocus(selector) {
     if (typeof selector == 'undefined' || !selector) {
-      window.setTimeout(() => {
+      setTimeout(() => {
         JsSpatialNavigation.focus(`@${this.sectionId}`)
       }, 10)
     } else {
-      window.setTimeout(() => {
+      setTimeout(() => {
         JsSpatialNavigation.focus(selector)
       }, 10)
     }

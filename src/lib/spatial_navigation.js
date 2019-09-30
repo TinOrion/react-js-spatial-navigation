@@ -1282,6 +1282,10 @@ var JsSpatialNavigation = {
     } else {
       _defaultSectionId = sectionId;
     }
+  },
+
+  getDefaultSection: function() {
+    return _defaultSectionId
   }
 };
 

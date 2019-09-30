@@ -1618,6 +1618,10 @@ var JsSpatialNavigation = {
     } else {
       _defaultSectionId = sectionId;
     }
+  },
+
+  getDefaultSection: function getDefaultSection() {
+    return _defaultSectionId;
   }
 };
 
@@ -1934,6 +1938,10 @@ var Focusable = function (_Component2) {
       if (this.props.onUnfocus) {
         this.props.onUnfocus(e);
       }
+
+      if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId) {
+        this._makeFocusDefaultSection();
+      }
     }
   }, {
     key: 'componentClickEnter',
@@ -1963,6 +1971,20 @@ var Focusable = function (_Component2) {
     key: '_resume',
     value: function _resume() {
       _spatial_navigation2.default.resume();
+    }
+  }, {
+    key: '_makeFocusDefaultSection',
+    value: function _makeFocusDefaultSection() {
+      _spatial_navigation2.default.focus();
+    }
+  }, {
+    key: '_makeFocus',
+    value: function _makeFocus(selector) {
+      if (typeof selector == 'undefined' || !selector) {
+        _spatial_navigation2.default.focus('@' + this.sectionId);
+      } else {
+        _spatial_navigation2.default.focus(selector);
+      }
     }
   }, {
     key: 'componentDidMount',
@@ -2224,11 +2246,11 @@ var FocusableSection = function (_Component3) {
       var _this5 = this;
 
       if (typeof selector == 'undefined' || !selector) {
-        window.setTimeout(function () {
+        setTimeout(function () {
           _spatial_navigation2.default.focus('@' + _this5.sectionId);
         }, 10);
       } else {
-        window.setTimeout(function () {
+        setTimeout(function () {
           _spatial_navigation2.default.focus(selector);
         }, 10);
       }
