@@ -554,6 +554,11 @@ class FocusableSection extends Component {
         defaultSectionLoaded: true
       })
     }
+
+    if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection)
+      this._disableSection()
+    else
+      this._activeSection()
   }
 
   render() {

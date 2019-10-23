@@ -2344,6 +2344,8 @@ var FocusableSection = function (_Component3) {
           defaultSectionLoaded: true
         });
       }
+
+      if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection) this._disableSection();else this._activeSection();
     }
   }, {
     key: 'render',
