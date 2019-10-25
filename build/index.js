@@ -2337,7 +2337,7 @@ var FocusableSection = function (_Component3) {
     }
   }, {
     key: 'componentDidUpdate',
-    value: function componentDidUpdate() {
+    value: function componentDidUpdate(prevProps) {
       if (this._hasDefaultSetting() && this._hasChildrenItems() && !this.state.defaultSectionLoaded) {
         this._makeFocus();
         this.setState({
@@ -2345,7 +2345,12 @@ var FocusableSection = function (_Component3) {
         });
       }
 
-      if (typeof this.props.disabledSection != 'undefined' && this.props.disabledSection) this._disableSection();else this._activeSection();
+      // if (typeof this.props.disabledSection != 'undefined' && typeof prevProps.disabledSection != 'undefined' && this.props.disabledSection != prevProps.disabledSection) {
+      //   if (prevProps.disabledSection)
+      //     this._disableSection()
+      //   else
+      //     this._activeSection()
+      // }
     }
   }, {
     key: 'render',

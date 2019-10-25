@@ -1,6 +1,6 @@
 {
   "name": "react-js-spatial-navigation",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "A wrapper of js-spatial-navigation to react components",
   "main": "build/index.js",
   "bugs": {
