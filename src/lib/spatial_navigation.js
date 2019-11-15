@@ -883,6 +883,14 @@ function onKeyDown(evt) {
 
   var direction = KEYMAPPING[evt.keyCode];
   if (!direction) {
+    if (evt.type == 'customForceKeyDown') {
+      direction = KEYMAPPING[40];
+    } else if (evt.type == 'customForceKeyUp') {
+      direction = KEYMAPPING[38];
+    }
+  }
+
+  if (!direction) {
     if (evt.keyCode == 13) {
       currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
@@ -998,6 +1006,8 @@ var JsSpatialNavigation = {
       }
 
       window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('customForceKeyDown', onKeyDown);
+      window.addEventListener('customForceKeyUp', onKeyDown);
       window.addEventListener('keyup', onKeyUp);
       window.addEventListener('focus', onFocus, true);
       window.addEventListener('blur', onBlur, true);
@@ -1010,6 +1020,8 @@ var JsSpatialNavigation = {
     window.removeEventListener('focus', onFocus, true);
     window.removeEventListener('keyup', onKeyUp);
     window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('customForceKeyDown', onKeyDown);
+    window.removeEventListener('customForceKeyUp', onKeyDown);
     this.clear();
     _idPool = 0;
     _ready = false;
