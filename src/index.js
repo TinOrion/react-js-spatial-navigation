@@ -183,7 +183,7 @@ class Focusable extends Component {
       this.props.onUnfocus(e);
     }
 
-    if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId) {
+    if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId && !e.detail.isClickTouch) {
       this._makeFocusDefaultSection()
     }
   }

@@ -1328,7 +1328,8 @@ function onBlur(evt) {
   var target = evt.target;
   if (target !== window && target !== document && !_pause && _sectionCount && !_duringFocusChange && getSectionId(target)) {
     var unfocusProperties = {
-      native: true
+      native: true,
+      isClickTouch: evt.sourceCapabilities && typeof evt.sourceCapabilities.firesTouchEvents != 'undefined' ? true : false
     };
     if (!fireEvent(target, 'willunfocus', unfocusProperties)) {
       _duringFocusChange = true;
@@ -1951,7 +1952,7 @@ var Focusable = function (_Component2) {
         this.props.onUnfocus(e);
       }
 
-      if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId) {
+      if (e && e.detail && !e.detail.direction && !e.detail.nextSectionId && !e.detail.isClickTouch) {
         this._makeFocusDefaultSection();
       }
     }

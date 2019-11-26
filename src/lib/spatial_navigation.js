@@ -981,7 +981,8 @@ function onBlur(evt) {
   if (target !== window && target !== document && !_pause &&
       _sectionCount && !_duringFocusChange && getSectionId(target)) {
     var unfocusProperties = {
-      native: true
+      native: true,
+      isClickTouch: (evt.sourceCapabilities && typeof evt.sourceCapabilities.firesTouchEvents != 'undefined') ? true : false
     };
     if (!fireEvent(target, 'willunfocus', unfocusProperties)) {
       _duringFocusChange = true;
